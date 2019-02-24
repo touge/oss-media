@@ -24,35 +24,43 @@ class OssMediaField extends Field
 $('div.dm-uploader-panel').off('click','.btn-selector-alioss').on('click','.btn-selector-alioss',function(e){
     var that = this
     $(this).addClass('disabled').attr('disabled','disabled')
+    var upload_input_element = $('div.dm-uploader-panel').find('input.oss-file-path[type="text"]')
     var options= {}
     OssHelper.modal({
         url: "{$url_prefix}/oss-modal",
         data: options,
-        size: 'modal-lg',
+//        size: 'modal-lg',
         title: '选择文件',
         method: 'get',
         shown: function(element){
             $(that).removeClass('disabled').removeAttr('disabled')
             
-            OssHelper.oss_files("{$url_prefix}/oss-files" ,{} ,function(response){
-                $(".oss-list").empty().html(response);
-            })
-            
+            var options= {};
+            var input_element_value = upload_input_element.val()
+            if(input_element_value){
+                options.prefix = input_element_value.slice(0 ,input_element_value.lastIndexOf('/')+1 )                
+            }
+            OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){})
+                        
             $(".modal-body").off('click' ,'.folder').on('click', '.folder',function(){
                 var options = {prefix: $(this).data('prefix')}
-                OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){
-                $(".oss-list").empty().html(response);
-            })
+                OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){})
             })
             
             $(".modal-body").off('click' ,'.file').on('click', ".file",function(){
-                $('div.dm-uploader-panel').find('input.oss-file-path[type="text"]').val($(this).data('file'))
+                upload_input_element.val($(this).data('file'))
+//                $('div.dm-uploader-panel').find('input.oss-file-path[type="text"]').val($(this).data('file'))
                 $(this).parents("div.modal").modal('hide')
-            });
+            });           
+            
+            $("div>ol.breadcrumb").off('click' ,'a').on('click', "a",function(e){
+                e.preventDefault();
+                var options = {prefix:$(this).data('prefix')}
+                OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){})
+            });                       
         }
     })
 });
-
 
 
 

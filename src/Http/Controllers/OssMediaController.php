@@ -54,9 +54,11 @@ class OssMediaController extends Controller
      */
     public function oss_files(Request $request){
         $oss = new AliOSS();
-        $files = $oss->listObjects($request->get('prefix',null));
 
-        return view("oss-media::oss-files" ,compact('files'));
+        $prefix = $request->get('prefix',null);
+        $files = $oss->listObjects($prefix);
+
+        return view("oss-media::oss-files" ,compact('files' ,'prefix'));
     }
 
     /**
