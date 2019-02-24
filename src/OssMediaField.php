@@ -41,7 +41,7 @@ $('div.dm-uploader-panel').off('click','.btn-selector-alioss').on('click','.btn-
                 options.prefix = input_element_value.slice(0 ,input_element_value.lastIndexOf('/')+1 )                
             }
             OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){})
-                        
+                                    
             $(".modal-body").off('click' ,'.folder').on('click', '.folder',function(){
                 var options = {prefix: $(this).data('prefix')}
                 OssHelper.oss_files("{$url_prefix}/oss-files" ,options ,function(response){})

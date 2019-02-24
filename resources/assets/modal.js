@@ -1,32 +1,4 @@
 var OssHelper = {};
-OssHelper.uuid = function (len, radix) {
-    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-    var uuid = [], i;
-    radix = radix || chars.length;
-
-    if (len) {
-        // Compact form
-        for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random() * radix];
-    } else {
-        // rfc4122, version 4 form
-        var r;
-
-        // rfc4122 requires these characters
-        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-        uuid[14] = '4';
-
-        // Fill in random data. At i==19 set the high bits of clock sequence as
-        // per rfc4122, sec. 4.1.5
-        for (i = 0; i < 36; i++) {
-            if (!uuid[i]) {
-                r = 0 | Math.random() * 16;
-                uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
-            }
-        }
-    }
-
-    return uuid.join('');
-}
 OssHelper.modal = function (params) {
     var default_options = {
         url: null,
@@ -81,13 +53,44 @@ OssHelper.modal = function (params) {
 };
 
 OssHelper.oss_files = function (url,params,callback) {
+
+    var list_element = '.oss-list'
+
+    $(list_element).empty().html("<tr><td>正在载入...</td></tr>")
+
+    var options = $.extend({
+        prefix: null
+    },params)
     $.ajax({
         url: url,
         dataType: "html",
-        data: params || {},
+        data: {prefix: options.prefix},
         success: function (response) {
-            callback(response)
-            // $(".oss-list").html(response)
+            OssHelper.breadcrumb(options.prefix)
+            if(typeof callback == 'function'){
+                callback(response)
+            }
+            $(list_element).empty().html(response);
         }
     });
-}
+};
+
+OssHelper.breadcrumb = function(prefix){
+    var breadcrumb = '<li><a href="#" data-prefix=""><i class="fa fa-home"></i></a></li>';
+    if(prefix!=null){
+        var folders = prefix.split('/')
+        var folder_length = folders.length-1
+
+        var _prefix = '';
+        for(var i=0;i<folder_length;i++){
+            if(folder_length-1 == i) {
+                breadcrumb+= '<li> '+folders[i]+'</li>';
+            }else{
+                _prefix+= folders[i] + '/'
+                breadcrumb+= '<li><a href="#" data-prefix="'+_prefix+'"> '+folders[i]+'</a></li>';
+            }
+        }
+    }
+    $('div.modal-body > div > ol.breadcrumb').empty().html(breadcrumb);
+    return this
+};
