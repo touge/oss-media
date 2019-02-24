@@ -1,0 +1,35 @@
+{
+    "name": "touge/oss-media",
+    "description": "description...",
+    "type": "library",
+    "keywords": ["laravel-admin", "extension"],
+    "homepage": "https://github.com/touge/oss-media",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nick Yuan",
+            "email": "lon.y@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "encore/laravel-admin": "~1.6",
+        "aliyuncs/oss-sdk-php": "^2.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Touge\\OssMedia\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Touge\\OssMedia\\OssMediaServiceProvider"
+            ]
+
+        }
+    }
+}
