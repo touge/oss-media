@@ -16,6 +16,7 @@ class OssMediaServiceProvider extends ServiceProvider
         if (! OssMedia::boot()) {
             return ;
         }
+        include __DIR__ . "/Helper.php";
 
         if ($views = $extension->views()) {
             $this->loadViewsFrom($views, 'oss-media');
@@ -32,10 +33,9 @@ class OssMediaServiceProvider extends ServiceProvider
         }
 
 
-
-
         Admin::booting(function () {
-            Form::extend('oss_media', OssMediaField::class);
+            Form::extend('oss_image', OssImageField::class);
+            Form::extend('oss_file', OssFileField::class);
         });
 
 

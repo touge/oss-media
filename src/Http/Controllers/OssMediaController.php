@@ -33,11 +33,13 @@ class OssMediaController extends Controller
             }
 
             $oss_client = new AliOSS();
-
-
             $response = $oss_client->file_folder($folder)
                 ->file_name($upload_filename)
                 ->upload($upload_file);
+
+            if (is_image($response['file_path'])){
+                $response['preview'] = $oss_client->signUrl($response['file_path']);
+            }
 
             return ['status'=>'successful','data'=>$response];
         }
@@ -45,6 +47,20 @@ class OssMediaController extends Controller
     }
 
 
+    /**
+     * 获得访问文件路径
+     *
+     * @param Request $request
+     * @return array|string
+     * @throws \OSS\Core\OssException
+     */
+    public function oss_file_url(Request $request){
+        $object = $request->get('object',null);
+        if($object==null){
+            return ['status'=>'failed','message'=>'object file empty'];
+        }
+        return ['status'=>'successful','url'=>(new AliOSS())->signUrl($object)];
+    }
 
     /**
      * 远程文件列表
