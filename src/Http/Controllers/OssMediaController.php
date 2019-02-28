@@ -94,10 +94,25 @@ class OssMediaController extends Controller
      * 获得访问文件路径
      *
      * @param Request $request
-     * @return array|string
-     * @throws \OSS\Core\OssException
+     * @return array
      */
     public function oss_file_url(Request $request){
+        $object = $request->get('object',null);
+        if($object==null){
+            return ['status'=>'failed','message'=>'object file empty'];
+        }
+
+        $url = (config('alioss.use_ssl') ? "https://" : "http://") .config('alioss.bucket') . '.' . config('alioss.endpoint') . '/' . $object;
+        return ['status'=>'successful','url'=>$url];
+    }
+
+    /**
+     * 获得带有签名的文件地址,当文件为私有时，需要使用此接口
+     *
+     * @return array
+     * @throws \OSS\Core\OssException
+     */
+    public function sign_oss_file_url(Request $request){
         $object = $request->get('object',null);
         if($object==null){
             return ['status'=>'failed','message'=>'object file empty'];
