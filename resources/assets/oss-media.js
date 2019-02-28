@@ -52,28 +52,46 @@ OssMedia.modal = function (params) {
     });
 };
 
-OssMedia.oss_files = function (url,params,callback) {
+/**
+ * 文件列表
+ * @param url
+ * @param params
+ * @param callback
+ */
+OssMedia.oss_files = function (params) {
+    console.log(params);
+
     var list_element = '.oss-list'
     $(list_element).empty().html("<tr><td>正在载入...</td></tr>")
 
     var options = $.extend({
-        prefix: null
+        url: null,
+        prefix: null,
+        success: undefined,
     },params)
     $.ajax({
-        url: url,
+        url: options.url,
         dataType: "html",
-        data: {prefix: options.prefix},
+        data: {
+            prefix: options.prefix
+        },
         success: function (response) {
-            OssMedia.breadcrumb(options.prefix)
-            if(typeof callback == 'function'){
-                callback(response)
+            OssMedia.change_breadcrumb(options.prefix)
+
+            if(typeof options.success == 'function'){
+                options.success(response)
             }
             $(list_element).empty().html(response);
         }
     });
 };
 
-OssMedia.breadcrumb = function(prefix){
+/**
+ * 改变导航列表
+ * @param prefix
+ * @returns {OssMedia}
+ */
+OssMedia.change_breadcrumb = function(prefix){
     var breadcrumb = '<li><a href="#" data-prefix=""><i class="fa fa-home"></i></a></li>';
     if(prefix!=null){
         var folders = prefix.split('/')
@@ -104,6 +122,76 @@ OssMedia.is_image = function(file){
         .indexOf(file.substr(file.lastIndexOf(".")+1).toLowerCase()) !== -1
 };
 
+/**
+ * 导航列表
+ * @param url
+ */
+OssMedia.breadcrumb =function(url){
+    $("div>ol.breadcrumb").off('click' ,'a').on('click', "a",function(e){
+        e.preventDefault();
+        var options = {
+            url: url,
+            prefix: $(this).data('prefix')
+        }
+        OssMedia.oss_files(options)
+    });
+};
+
+/**
+ * 切换目录
+ */
+OssMedia.selector_folder = function(url,callback){
+    $('.modal-body').off('click','.folder').on('click','.folder',function(){
+        var options = {
+            url: url,
+            prefix: $(this).data('prefix'),
+            success: callback
+        }
+        OssMedia.oss_files(options)
+    })
+};
+
+/**
+ * 选择文件时操作
+ */
+OssMedia.selector_file = function(callback){
+    $('.modal-body').off('click','.file').on('click','.file',function(){
+        callback($(this).data('file'))
+    });
+}
+
+
+/**
+ * 图片预览
+ * @param params
+ */
+OssMedia.preview = function(params){
+    var options = $.extend({
+        url: null,
+        file: null,
+        success: undefined
+    },params);
+
+    if(OssMedia.is_image(options.file)){
+        $.ajax({
+            url: options.url,//url_prefix + '/oss-file-url',
+            data: {
+                object:options.file
+            },
+            success:function(response){
+                if(response.status=='failed'){
+                    alert('获得oss地址失败')
+                    return;
+                }
+
+                if(typeof options.success=='function'){
+                    return options.success(response.url)
+                }
+            }
+        })
+    }
+}
+
 //选择阿里云资源
 OssMedia.selector_alioss = function(element ,url_prefix){
     var column_element = $(element).parent().parent().parent().find('input.oss-file-path')
@@ -114,50 +202,46 @@ OssMedia.selector_alioss = function(element ,url_prefix){
         data: {},
         title: '选择文件',
         method: 'get',
-        shown: function(response){
+        shown: function(modal_element){
             $(element).removeClass('disabled').removeAttr('disabled')
 
-            var options= {};
+            /**
+             * 默认打开的列表
+             * @type {string}
+             */
+            var file_url = url_prefix + '/oss-files'
+            var options= { url: file_url };
+
             var input_element_value = column_element.val()
             if(input_element_value){
                 options.prefix = input_element_value.slice(0 ,input_element_value.lastIndexOf('/')+1 )
             }
-            OssMedia.oss_files( url_prefix  + "/oss-files" ,options)
+            OssMedia.oss_files(options)
 
-            $('.modal-body').off('click','.folder').on('click','.folder',function(){
-                var options = {prefix: $(this).data('prefix')}
-                OssMedia.oss_files(url_prefix + "/oss-files" ,options)
-            })
 
-            $(".modal-body").off('click' ,'.file').on('click', ".file",function(){
+            /**
+             * 选择目录时，切换的
+             */
+            OssMedia.selector_folder(file_url)
 
-                var selected_file = $(this).data('file')
-                column_element.val(selected_file)
-                if(OssMedia.is_image(selected_file)){
-                    $.ajax({
-                        url: url_prefix + '/oss-file-url',
-                        data: {object:selected_file},
-                        success:function(response){
-                            if(response.status=='failed'){
-                                //
-                                alert('获得oss地址失败')
-                                return;
-                            }
-                            var preview_element = $(element).parent().parent().parent();
-                            preview_element.find('div.image-preview').empty().html('<img src="'+response.url+'" style="width: 100px">')
-                        }
-                    })
-                }
+            /**
+             * 选择文件
+             */
+            OssMedia.selector_file(function(file){
+                column_element.val(file)
+                OssMedia.preview({
+                    url: url_prefix + '/oss-file-url',
+                    file: file,
+                    success: function(image_url){
+                        var preview_element = $(element).parent().parent().parent();
+                        preview_element.find('div.image-preview').empty().html('<img src="'+image_url+'" style="width: 100px">')
+                    }
+                })
 
-                $(this).parents("div.modal").modal('hide')
+                $(modal_element).modal('hide')
             });
 
-            $("div>ol.breadcrumb").off('click' ,'a').on('click', "a",function(e){
-                e.preventDefault();
-                var options = {prefix:$(this).data('prefix')}
-                OssMedia.oss_files(url_prefix + "/oss-files" ,options)
-            });
-
+            OssMedia.breadcrumb(url_prefix + "/oss-files")
         }
     })
 };
