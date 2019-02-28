@@ -12,4 +12,5 @@ Route::get('oss-media/oss-file-url', ['uses'=>OssMediaController::class.'@oss_fi
 /**
  * ckeditor插件
  */
-Route::get('oss-media/ckeditor', ['uses'=>OssMediaController::class.'@ckeditor' ,'as'=>'oss-media.ckeditor']);
+Route::get('oss-media/ckeditor-image-browser', ['uses'=>OssMediaController::class.'@ckeditor_image_browser' ,'as'=>'oss-media.ckeditor-image-browser']);
+Route::post('oss-media/ckeditor-image-upload', ['uses'=>OssMediaController::class.'@ckeditor_image_upload' ,'as'=>'oss-media.ckeditor-image-upload']);

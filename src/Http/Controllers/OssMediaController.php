@@ -9,7 +9,52 @@ use Touge\OssMedia\Services\AliOSS;
 
 class OssMediaController extends Controller
 {
-    public function ckeditor(){
+
+    public function ckeditor_image_upload(Request $request){
+
+        if($request->hasFile('upload')){
+            $upload_file = $request->file('upload');
+
+            $folder = date('Ym/d');
+
+            //查看配置中上传时是否改名
+            $upload_filename= null;
+            if(config('alioss.change-uploader-filename')==false){
+                $upload_filename = $upload_file->getClientOriginalName();
+            }
+
+            $oss_client = new AliOSS();
+            $response = $oss_client->file_folder($folder)
+                ->file_name($upload_filename)
+                ->upload($upload_file);
+
+            if (is_image($response['file_path'])){
+                $response['preview'] = $oss_client->signUrl($response['file_path']);
+            }
+
+
+            return [
+                "uploaded"=> 1,   //写死的
+                "fileName"=> $response['original_name'],  //图片名
+                "url"=> $response['preview']  //上传服务器的图片的url
+            ];
+
+        }
+
+        return [
+            "uploaded"=> 0,   //写死的
+            "fileName"=> "exampe.png",  //图片名
+            "url"=> "example"  //上传服务器的图片的url
+        ];
+
+
+    }
+
+    /**
+     * ckeditor 图片浏览
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function ckeditor_image_browser(){
         return view('oss-media::ckeditor');
     }
 
