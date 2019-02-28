@@ -9,11 +9,9 @@ use Touge\OssMedia\Services\AliOSS;
 
 class OssMediaController extends Controller
 {
-    public function index()
-    {
-        return view("oss-media::index");
+    public function ckeditor(){
+        return view('oss-media::ckeditor');
     }
-
 
     /**
      * 上传到阿里云oss

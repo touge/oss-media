@@ -32,7 +32,6 @@
                 <i class="fa fa-cloud-upload"></i> 上传文件
                 <input type="file" class="uploader-file" title="Click to add file">
             </div>
-            <small class="status text-muted">Select a file or drag it over this area..</small>
 
             <div class="pull-left" style="padding-right:15px;">
                 <a class="btn btn-twitter btn-sm btn-selector-alioss">
@@ -40,6 +39,8 @@
                 </a>
             </div>
         </div>
+        <small class="status text-muted">Select a file or drag it over this area..</small>
+
         @include('admin::form.help-block')
     </div>
 </div>
