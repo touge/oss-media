@@ -13,6 +13,11 @@ return [
     'bucket'=>env('OSS_BUCKET','*'),
 
     /**
+     * 使用https
+     */
+    'use_ssl'=> true,
+
+    /**
      * 外网访问，开启使用此地址
      */
     'endpoint'=> env('OSS_ENDPOINT','oss-cn-shanghai.aliyuncs.com'),
@@ -27,3 +32,5 @@ return [
      */
     'change-uploader-filename' => true,
 ];
+
+
