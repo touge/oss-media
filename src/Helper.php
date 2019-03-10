@@ -7,8 +7,29 @@
  */
 
 if(!function_exists('oss_sign_url')){
+    /**
+     * 带验签的oss地址路径
+     * @param $object
+     * @return string
+     * @throws \OSS\Core\OssException
+     */
     function oss_sign_url($object){
         return (new \Touge\OssMedia\Services\AliOSS())->signUrl($object);
+    }
+}
+
+
+
+if(!function_exists('oss_no_sign_url')){
+    /**
+     * 无验证的oss文件地址
+     * @param $object
+     * @return string
+     */
+    function oss_no_sign_url($object){
+        $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
+        $alioss = config('alioss');
+        return  $http_type. $alioss['bucket'] . '.' . $alioss['endpoint'] . '/' .$object;
     }
 }
 

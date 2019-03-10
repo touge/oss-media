@@ -6,7 +6,7 @@
 
         <div class="image-preview" style="margin-bottom:10px;">
             @if(old($column, $value))
-                <img src="{{oss_sign_url($value)}}" alt="Attachment" style="width:100px;"/>
+                <img src="{{oss_no_sign_url($value)}}" alt="Attachment" style="width:100px;"/>
             @endif
         </div>
 

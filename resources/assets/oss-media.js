@@ -59,7 +59,7 @@ OssMedia.modal = function (params) {
  * @param callback
  */
 OssMedia.oss_files = function (params) {
-    console.log(params);
+    // console.log(params);
 
     var list_element = '.oss-list'
     $(list_element).empty().html("<tr><td>正在载入...</td></tr>")
