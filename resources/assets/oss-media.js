@@ -229,9 +229,12 @@ OssMedia.selector_alioss = function(element ,url_prefix){
              */
             OssMedia.selector_file(function(file){
                 column_element.val(file)
+
+                var preview_file= encodeURIComponent(file)
+
                 OssMedia.preview({
                     url: url_prefix + '/oss-file-url',
-                    file: file,
+                    file: preview_file,
                     success: function(image_url){
                         var preview_element = $(element).parent().parent().parent();
                         preview_element.find('div.image-preview').empty().html('<img src="'+image_url+'" style="width: 100px">')
