@@ -13,6 +13,8 @@ class OssImageField extends OssField
     protected $view = 'oss-media::image';
 
     public function render(){
+        $this->addVariables(["config"=>config("oss-media")]);
+
         $url_prefix = admin_url('oss-media');
         $this->script = <<<EOT
 $(".btn-selector-alioss").on('click', function (event) {

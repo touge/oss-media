@@ -5,7 +5,7 @@
         @include('admin::form.error')
 
         <div class="image-preview" style="margin-bottom:10px;">
-            @if(old($column, $value))
+            @if( old($column, $value) && tougeOssMediaIsImage($value) )
                 <img src="{{tougeOssMediaRemoteFileUrl(urlencode($value))}}" alt="Attachment" style="width:100px;"/>
             @endif
         </div>
@@ -33,7 +33,7 @@
         </div>
 
         <div class="form-group dm-uploader" style="margin: 0px;">
-            @if(config("alioss.is_upload"))
+            @if($config["is_upload"])
             <div role="button" class="btn btn-sm btn-primary mr-2">
                 <i class="fa fa-cloud-upload"></i> 上传图片
                 <input type="file" class="uploader-file" title="Click to add image file" accept=".jpg,.jpeg,.png,.gif">

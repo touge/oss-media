@@ -171,6 +171,7 @@ OssMedia.preview = function(params){
     var options = $.extend({
         url: null,
         file: null,
+        preview_element:null,
         success: undefined
     },params);
 
@@ -191,6 +192,8 @@ OssMedia.preview = function(params){
                 }
             }
         })
+    }else{
+        params.preview_element.find('div.image-preview').empty()
     }
 }
 
@@ -233,14 +236,15 @@ OssMedia.selector_alioss = function(element ,url_prefix){
             /**
              * 选择文件
              */
+            var preview_element = $(element).parent().parent().parent();
             OssMedia.selector_file(function(file){
                 column_element.val(file)
                 var preview_file= encodeURIComponent(file)
                 OssMedia.preview({
                     url: url_prefix + '/oss-file-url',
                     file: preview_file,
+                    preview_element: preview_element,
                     success: function(image_url){
-                        var preview_element = $(element).parent().parent().parent();
                         preview_element.find('div.image-preview').empty().html('<img src="'+image_url+'" style="width: 100px">')
                     }
                 })
