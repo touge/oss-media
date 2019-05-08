@@ -1,7 +1,7 @@
 @foreach($files['prefixList'] as $folder)
-    <tr class="folder" data-prefix="{{$folder}}" style="cursor:pointer;">
+    <tr class="folder" data-prefix="{{tougeOssMediaFormatModalFolder($folder)}}" style="cursor:pointer;">
         <td>
-            <span><i class="fa fa-folder-open"></i> {{ mb_substr(str_replace($prefix ,'', $folder),0,-1) }}</span>
+            <span><i class="fa fa-folder-open"></i> {{ mb_substr(str_replace($prefix, '', tougeOssMediaFormatModalFolder($folder)), 0, -1) }}</span>
         </td>
     </tr>
 @endforeach

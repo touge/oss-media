@@ -133,6 +133,7 @@ OssMedia.breadcrumb =function(url){
             url: url,
             prefix: $(this).data('prefix')
         }
+        $.cookie('oss-browser-prefix', options.prefix);
         OssMedia.oss_files(options)
     });
 };
@@ -147,6 +148,7 @@ OssMedia.selector_folder = function(url,callback){
             prefix: $(this).data('prefix'),
             success: callback
         }
+        $.cookie('oss-browser-prefix', options.prefix);
         OssMedia.oss_files(options)
     })
 };
@@ -195,8 +197,8 @@ OssMedia.preview = function(params){
 //选择阿里云资源
 OssMedia.selector_alioss = function(element ,url_prefix){
     var column_element = $(element).parent().parent().parent().find('input.oss-file-path')
-
     $(element).addClass('disabled').attr('disabled','disabled')
+
     OssMedia.modal({
         url: url_prefix + '/oss-modal',
         data: {},
@@ -213,8 +215,12 @@ OssMedia.selector_alioss = function(element ,url_prefix){
             var options= { url: file_url };
 
             var input_element_value = column_element.val()
+            var cookie_prefix= $.cookie('oss-browser-prefix', options.prefix)
+
             if(input_element_value){
-                options.prefix = input_element_value.slice(0 ,input_element_value.lastIndexOf('/')+1 )
+                options.prefix= input_element_value.slice(0 ,input_element_value.lastIndexOf('/')+1 )
+            } else if( cookie_prefix ){
+                options.prefix= cookie_prefix
             }
             OssMedia.oss_files(options)
 
@@ -229,9 +235,7 @@ OssMedia.selector_alioss = function(element ,url_prefix){
              */
             OssMedia.selector_file(function(file){
                 column_element.val(file)
-
                 var preview_file= encodeURIComponent(file)
-
                 OssMedia.preview({
                     url: url_prefix + '/oss-file-url',
                     file: preview_file,

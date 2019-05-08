@@ -30,7 +30,10 @@ class AliOSS
      * AliOSS constructor.
      */
     public function __construct(){
-        $this->config = config('alioss');
+        $config= config("oss-media");
+
+//        $this->config = config('alioss');
+        $this->config = $config["alioss"];
 
         if($this->oss_client==null){
             $this->oss_client();

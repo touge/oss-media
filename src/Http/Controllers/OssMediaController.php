@@ -2,6 +2,7 @@
 
 namespace Touge\OssMedia\Http\Controllers;
 
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -9,6 +10,12 @@ use Touge\OssMedia\Services\AliOSS;
 
 class OssMediaController extends Controller
 {
+    protected $config;
+
+    public function __construct()
+    {
+        $this->config= config('oss-media');
+    }
 
     public function ckeditor_image_upload(Request $request){
 
@@ -28,10 +35,9 @@ class OssMediaController extends Controller
                 ->file_name($upload_filename)
                 ->upload($upload_file);
 
-            if (is_image($response['file_path'])){
+            if (tougeOssMediaIsImage($response['file_path'])){
                 $response['preview'] = $oss_client->signUrl($response['file_path']);
             }
-
 
             return [
                 "uploaded"=> 1,   //写死的
@@ -80,7 +86,7 @@ class OssMediaController extends Controller
                 ->file_name($upload_filename)
                 ->upload($upload_file);
 
-            if (is_image($response['file_path'])){
+            if (tougeOssMediaIsImage($response['file_path'])){
                 $response['preview'] = $oss_client->signUrl($response['file_path']);
             }
 
@@ -101,9 +107,16 @@ class OssMediaController extends Controller
         if($object==null){
             return ['status'=>'failed','message'=>'object file empty'];
         }
+        if ($this->config["filesystem"]=='alioss'){
+            $alioss= $this->config["alioss"];
+            $url = ($alioss["use_ssl"] ? "https://" : "http://") .$alioss["bucket"] . '.' . $alioss["endpoint"] . '/' . $object;
+            return ['status'=>'successful','url'=>$url];
+        }
 
-        $url = (config('alioss.use_ssl') ? "https://" : "http://") .config('alioss.bucket') . '.' . config('alioss.endpoint') . '/' . $object;
-        return ['status'=>'successful','url'=>$url];
+        $network= $this->config["network"];
+        $url= $network["access_files_url"] . $object;
+
+        return ["status"=> "successful" ,"url"=> $url];
     }
 
     /**
@@ -127,27 +140,65 @@ class OssMediaController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function oss_files(Request $request){
-        $oss = new AliOSS();
-
         $prefix = $request->get('prefix',null);
-        $files = $oss->listObjects($prefix);
+
+        if($this->config['filesystem']=='alioss'){
+            $oss = new AliOSS();
+            $files = $oss->listObjects($prefix);
+        }else{
+            $files= $this->network_files($prefix);
+            $files= json_decode($files ,true);
+//            dd($files);
+        }
+//        return $files;
 
         return view("oss-media::oss-files" ,compact('files' ,'prefix'));
     }
 
     /**
-     * 阿里云远程文件窗口
+     * 远程文件窗口
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function oss_modal(Request $request){
-//        $response_name = $request->get('response-name');
-//        $attachment_id = $request->get('attachment-id');
-//        $item= $request->get('item');
-//        $item_id = $request->get('item_id');
-//
-//        $compacts = compact('response_name','attachment_id','item','item_id');
-
         return view("oss-media::oss-modal");
+    }
+
+    protected function network_files($prefix){
+        $ts= time();
+        $query= ["prefix"=>$prefix ,"ts"=>$ts];
+        $token= $this->networkAccessToken($query);
+
+        $options= [
+            "query"=> $query,
+            "headers"=> ["Authorization"=> $token]
+        ];
+        $response= $this->httpClient()->request("GET" ,"/" ,$options);
+        return $response->getBody()->getContents();
+    }
+
+
+    /**
+     * http client init
+     * @return Client
+     */
+    protected function httpClient(){
+        $params= [
+            'base_uri'=> $this->config["network"]["access_files_url"],
+            'timeout'=> 2.0,
+        ];
+        $client= new Client($params);
+        return $client;
+    }
+
+    /**
+     * 获得与文件服务的通讯密钥
+     * @param array $params [prefix,ts]
+     * @return mixed
+     */
+    protected function networkAccessToken($params){
+        $access_key= $this->config["network"]["access_files_key"];
+        $token_string= $access_key. $params["prefix"] . $params["ts"];
+        return strtoupper(md5(base64_encode($token_string)));
     }
 }

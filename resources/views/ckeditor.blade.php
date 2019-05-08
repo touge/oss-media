@@ -71,5 +71,9 @@
 </script>
 <script src="{{admin_asset("vendor/laravel-admin/AdminLTE/bootstrap/js/bootstrap.min.js")}}"></script>
 <script src="{{admin_asset("vendor/touge/oss-media/oss-media.js")}}"></script>
+<script src="{{admin_asset("vendor/touge/oss-media/oss-media.js")}}"></script>
+<script src="{{admin_asset('assets/backend/js/jquery.cookie.min.js')}}"></script>
+
+
 </body>
 </html>
