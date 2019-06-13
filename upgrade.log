@@ -1,0 +1,5 @@
+
+2019.06.13
+version: v0.1.4
+1. config/oss-media.php 添加 network.access_files_api_url，用于远程获取文件的API接口自定义
+2. 修改 OssMediaController.php，适配API接口自定义及修正了初始化httpClient时指定的base_uri错误。

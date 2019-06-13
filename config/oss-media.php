@@ -28,6 +28,7 @@ return [
         'vpc-endpoint'=> 'oss-cn-shanghai-internal.aliyuncs.com',
     ],
     'network'=> [
+        'access_files_api_url'=> env("ACCESS_FILES_API_URL" ,'http://127.0.0.1:8001'),
         'access_files_url'=> env("ACCESS_FILES_URL" ,'http://127.0.0.1:8001/storage/'),
         'access_files_key'=> env("ACCESS_FILES_KEY", "******"),
         'access_files_expire'=> env("ACCESS_FILES_EXPIRE" ,300)

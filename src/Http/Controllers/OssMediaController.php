@@ -173,7 +173,7 @@ class OssMediaController extends Controller
             "query"=> $query,
             "headers"=> ["Authorization"=> $token]
         ];
-        $response= $this->httpClient()->request("GET" ,"/" ,$options);
+        $response= $this->httpClient()->request("GET" ,$this->config["network"]["access_files_api_url"] ,$options);
         return $response->getBody()->getContents();
     }
 
@@ -184,7 +184,7 @@ class OssMediaController extends Controller
      */
     protected function httpClient(){
         $params= [
-            'base_uri'=> $this->config["network"]["access_files_url"],
+//            'base_uri'=> $this->config["network"]["access_files_url"],
             'timeout'=> 2.0,
         ];
         $client= new Client($params);
