@@ -14,7 +14,7 @@
                    value="{{old($column, $value)}}"
                    placeholder="Local upload or server selection"
                    readonly="readonly"
-                   {{--placeholder="{{$placeholder}}"--}}
+                    {{--placeholder="{{$placeholder}}"--}}
             >
 
             <div class="progress mb-2 d-none" style="height:34px;">
@@ -28,10 +28,12 @@
         </div>
 
         <div class="form-group dm-uploader" style="margin: 0px;">
-            <div role="button" class="btn btn-sm btn-info mr-2">
-                <i class="fa fa-cloud-upload"></i> 上传文件
-                <input type="file" class="uploader-file" title="Click to add file">
-            </div>
+            @if($config["is_upload"])
+                <div role="button" class="btn btn-sm btn-info mr-2">
+                    <i class="fa fa-cloud-upload"></i> 上传文件
+                    <input type="file" class="uploader-file" title="Click to add file">
+                </div>
+            @endif
 
             <div class="pull-left" style="padding-right:15px;">
                 <a class="btn btn-twitter btn-sm btn-selector-alioss">
