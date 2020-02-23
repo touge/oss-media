@@ -288,7 +288,7 @@ OssMedia.template= {
             '        <img src="' + file + '" alt="Attachment" style=""/>' +
             '    </div>' +
             '    <div class="file-footer-buttons">' +
-            '        <a class="btn btn-sm btn-danger" target="_blank">' +
+            '        <a class="btn btn-sm btn-danger btn-destroy-multiple" data-key="' + next_key + '">' +
             '            <i class="fa fa-trash"></i>' +
             '        </a>' +
             '    </div>' +
@@ -312,7 +312,7 @@ OssMedia.putMultipleColumn= function(element, file){
     //当前字段名称
     var currentFieldName= this.currentFieldName(element)
 
-    var tpl= '<input type="text"' +
+    var tpl= '<input type="hidden"' +
         '   class="form-control oss-file-path multiple-image-' + next_key + '"' +
         '   data-key="'+ next_key +'"' +
         '   name="'+ currentFieldName +'[]"' +
@@ -331,8 +331,6 @@ OssMedia.putMultipleColumn= function(element, file){
 OssMedia.currentElement= function(element){
     return $(element).parent().parent().parent();
 }
-
-
 
 OssMedia.destroyMultipleImage= function(element){
     var key= $(element).data('key')
