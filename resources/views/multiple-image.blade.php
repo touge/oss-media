@@ -60,7 +60,7 @@
         <div class="from-group input-group mb-2 multiple">
             <div class="multiple-input">
                 @foreach($value as $key=>$item)
-                    <input type="text"
+                    <input type="hidden"
                        class="form-control oss-file-path multiple-image-{{$key}}"
                        name="{{$name}}[]"
                        value="{{$item}}"
