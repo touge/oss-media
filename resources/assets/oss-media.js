@@ -122,6 +122,11 @@ OssMedia.is_image = function(file){
         .indexOf(file.substr(file.lastIndexOf(".")+1).toLowerCase()) !== -1
 };
 
+OssMedia.is_media = function(file){
+    return ['mp4']
+        .indexOf(file.substr(file.lastIndexOf(".")+1).toLowerCase()) !== -1
+};
+
 /**
  * 导航列表
  * @param url
@@ -156,9 +161,14 @@ OssMedia.selector_folder = function(url,callback){
 /**
  * 选择文件时操作
  */
-OssMedia.selector_file = function(callback){
+OssMedia.selector_file = function(element, callback){
     $('.modal-body').off('click','.file').on('click','.file',function(){
-        callback($(this).data('file'))
+        var selected_file= $(this).data('file')
+        if(!OssMedia.check_allow_file_type(element ,selected_file)){
+            return alert('选择的文件类型错误')
+        }else{
+            callback(selected_file)
+        }
     });
 }
 
@@ -171,11 +181,11 @@ OssMedia.preview = function(params){
     var options = $.extend({
         url: null,
         file: null,
-        preview_element:null,
+        element:null,
         success: undefined
     },params);
 
-    if(OssMedia.is_image(options.file)){
+    if(OssMedia.is_image(options.file) || OssMedia.is_media(options.file)){
         $.ajax({
             url: options.url,//url_prefix + '/oss-file-url',
             data: {
@@ -193,14 +203,162 @@ OssMedia.preview = function(params){
             }
         })
     }else{
-        params.preview_element.find('div.image-preview').empty()
+        params.element.find('div.image-preview').empty()
     }
+}
+
+/**
+ * 判断文件是否为允许选择的类型
+ * @param upload_file_type
+ * @param file
+ * @returns {*}
+ */
+OssMedia.check_allow_file_type= function(element ,file){
+    var action_type= $(element).data('type')
+
+    if(action_type=='image' || action_type=='multiple-image'){
+        return OssMedia.is_image(file)
+    }
+    if(action_type=='media'){
+        return OssMedia.is_media(file)
+    }
+    return true
+}
+
+/**
+ * 当前插件的文件存储input表单
+ * @param element
+ * @returns {jQuery}
+ */
+OssMedia.ossFilePathElement= function(element){
+    return $(element).parent().parent().parent().find('input.oss-file-path')
+}
+
+
+/**
+ * 设置对象disabled状态
+ *
+ * @param element
+ * @param status=disabled,enable
+ */
+OssMedia.changeButtonDisableStatus= function(element, status = 'disabled'){
+    if(status=='disabled'){
+        $(element).addClass('disabled').attr('disabled','disabled')
+    }else{
+        $(element).removeClass('disabled').removeAttr('disabled')
+    }
+}
+
+/**
+ * 当前操作的类型
+ *
+ * @param element
+ * @returns {string} single:单文件, multiple: 多文件
+ */
+OssMedia.dealActionType= function(element){
+    var allow_file_type= $(element).data('type')
+    if(allow_file_type=='image' || allow_file_type=='media'){
+        return 'single'
+    }else{
+        return 'multiple'
+    }
+}
+
+/**
+ * 预览模板
+ * @type {{image: (function(*): string), imageMultiple: (function(*): string), video: (function(*): string)}}
+ */
+OssMedia.template= {
+    video: function(file){
+        return '<video src="' + file + '" class="media" controls="controls"/>'
+    },
+    image: function(file){
+        return '<img src="' + file + '"/>'
+    },
+    imageMultiple: function (element, file) {
+        var form_multiples= OssMedia.currentElement(element).find('div.upload-preview')
+
+
+        var last_child_element= form_multiples.children('div:last-child')
+        var next_key= parseInt(last_child_element.data('key')) + 1
+
+
+        return '<div class="image_box multiple-image-'+ next_key +'" data-key="'+ next_key +'">' +
+            '    <div>' +
+            '        <img src="' + file + '" alt="Attachment" style=""/>' +
+            '    </div>' +
+            '    <div class="file-footer-buttons">' +
+            '        <a class="btn btn-sm btn-danger" target="_blank">' +
+            '            <i class="fa fa-trash"></i>' +
+            '        </a>' +
+            '    </div>' +
+            '</div>'
+    }
+}
+
+/**
+ * 添加多文件上传表单
+ * @param element
+ * @param file
+ */
+OssMedia.putMultipleColumn= function(element, file){
+    var form_multiples= this.currentElement(element).find('div.multiple-input')
+
+
+    //最后一个input对象
+    var last_child_element= form_multiples.children('input:last-child')
+    var next_key= parseInt(last_child_element.data('key')) + 1
+
+    //当前字段名称
+    var currentFieldName= this.currentFieldName(element)
+
+    var tpl= '<input type="text"' +
+        '   class="form-control oss-file-path multiple-image-' + next_key + '"' +
+        '   data-key="'+ next_key +'"' +
+        '   name="'+ currentFieldName +'[]"' +
+        '   value="' + file + '"' +
+        '   data-key="{{$key}}"' +
+        '   readonly="readonly"' +
+        '>'
+    form_multiples.append(tpl)
+}
+
+/**
+ * 当前操作的表单对象
+ * @param element
+ * @returns {jQuery}
+ */
+OssMedia.currentElement= function(element){
+    return $(element).parent().parent().parent();
+}
+
+
+
+OssMedia.destroyMultipleImage= function(element){
+    var key= $(element).data('key')
+    var destroyClass= '.multiple-image-' + key
+
+    var current_element = $(element).parent().parent().parent().parent()
+    current_element.find(destroyClass).remove()
+}
+
+/**
+ * 表单名称
+ * @param element
+ * @returns {jQuery}
+ */
+OssMedia.currentFieldName= function(element){
+    return $(element).data('field-name')
 }
 
 //选择阿里云资源
 OssMedia.selector_alioss = function(element ,url_prefix){
-    var column_element = $(element).parent().parent().parent().find('input.oss-file-path')
-    $(element).addClass('disabled').attr('disabled','disabled')
+    var column_element= this.ossFilePathElement(element)
+
+    /**
+     * 置当前按钮状态为禁用状态
+     */
+    this.changeButtonDisableStatus(element, 'disabled')
 
     OssMedia.modal({
         url: url_prefix + '/oss-modal',
@@ -208,7 +366,7 @@ OssMedia.selector_alioss = function(element ,url_prefix){
         title: '选择文件',
         method: 'get',
         shown: function(modal_element){
-            $(element).removeClass('disabled').removeAttr('disabled')
+            OssMedia.changeButtonDisableStatus(element, 'enabled');
 
             /**
              * 默认打开的列表
@@ -225,30 +383,62 @@ OssMedia.selector_alioss = function(element ,url_prefix){
             } else if( cookie_prefix ){
                 options.prefix= cookie_prefix
             }
-            OssMedia.oss_files(options)
 
+            //文件列表
+            OssMedia.oss_files(options)
 
             /**
              * 选择目录时，切换的
              */
             OssMedia.selector_folder(file_url)
 
+
+            // 文件预览对象
+            var current_element = OssMedia.currentElement(element)// $(element).parent().parent().parent();
+
             /**
              * 选择文件
              */
-            var preview_element = $(element).parent().parent().parent();
-            OssMedia.selector_file(function(file){
-                column_element.val(file)
+            OssMedia.selector_file(element, function(file){
+                /**
+                 * 发送到表单中
+                 */
+                if(OssMedia.dealActionType(element)=='single'){
+                    column_element.val(file)
+                }else{
+                    OssMedia.putMultipleColumn(element, file)
+                }
+
+                //判定当前执行的类型
+                // console.log(OssMedia.dealActionType(element))
+
                 var preview_file= encodeURIComponent(file)
                 OssMedia.preview({
                     url: url_prefix + '/oss-file-url',
                     file: preview_file,
-                    preview_element: preview_element,
-                    success: function(image_url){
-                        preview_element.find('div.image-preview').empty().html('<img src="'+image_url+'" style="width: 100px">')
+                    element: current_element,
+                    success: function(file_url){
+
+                        var upload_preview_element= current_element.find('div.upload-preview')
+                            ,append_html
+
+                        if(OssMedia.is_media(file_url)){
+                            append_html= OssMedia.template.video(file_url)//'<video src="' + file_url + '" class="media" controls="controls"/>';
+                            upload_preview_element.empty().html(append_html)
+                        }
+                        if(OssMedia.is_image(file_url)){
+                            var action_type= OssMedia.dealActionType(element)
+                            if(action_type=='single'){
+                                append_html= OssMedia.template.image(file_url)
+                                upload_preview_element.empty().html(append_html)
+                            }
+                            if(action_type=='multiple'){
+                                append_html= OssMedia.template.imageMultiple(element,  file_url)
+                                upload_preview_element.append(append_html)
+                            }
+                        }
                     }
                 })
-
                 $(modal_element).modal('hide')
             });
 
@@ -288,7 +478,7 @@ OssMedia.dmUploader = function(url_prefix){
             this.find('input.oss-file-path[type="text"]').val(response.data.file_path);
 
             if(response.data.preview){
-                this.find('div.image-preview').empty().html('<img src="'+response.data.preview+'" style="width: 100px">')
+                this.find('div.upload-preview').empty().html('<img src="'+response.data.preview+'" style="width: 100px">')
             }
         },
         onUploadError: function(id, xhr, status, message){

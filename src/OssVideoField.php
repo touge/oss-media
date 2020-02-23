@@ -8,9 +8,9 @@
 
 namespace Touge\OssMedia;
 
-class OssImageField extends OssField
+class OssVideoField extends OssField
 {
-    protected $view = 'oss-media::image';
+    protected $view = 'oss-media::video';
 
     public function render(){
         $this->addVariables(["config"=>config("oss-media")]);

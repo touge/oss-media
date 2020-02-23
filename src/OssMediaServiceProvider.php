@@ -35,7 +35,9 @@ class OssMediaServiceProvider extends ServiceProvider
 
         Admin::booting(function () {
             Form::extend('oss_image', OssImageField::class);
+            Form::extend('oss_multiple_image', OssMultipleImageField::class);
             Form::extend('oss_file', OssFileField::class);
+            Form::extend('oss_video', OssVideoField::class);
         });
 
 
