@@ -36,7 +36,7 @@
             @endif
 
             <div class="pull-left" style="padding-right:15px;">
-                <a class="btn btn-twitter btn-sm btn-selector-alioss">
+                <a class="btn btn-twitter btn-sm btn-selector-file-alioss">
                     <i class="fa fa-cloud"></i> 从服务器选择
                 </a>
             </div>

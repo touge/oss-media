@@ -57,7 +57,7 @@
             @endif
 
             <div class="pull-left" style="padding-right:15px;">
-                <a class="btn btn-success btn-sm btn-selector-alioss" data-type="image" data-field-name="{{$name}}">
+                <a class="btn btn-success btn-sm btn-selector-image-alioss" data-type="image" data-field-name="{{$name}}">
                     <i class="fa fa-cloud"></i> 从服务器选择
                 </a>
             </div>

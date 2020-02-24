@@ -18,7 +18,7 @@ class OssFileField extends OssField
         $this->addVariables(["config"=>config("oss-media")]);
         $url_prefix = admin_url('oss-media');
         $this->script = <<<EOT
-$(".btn-selector-alioss").off('click').on('click', function (event) {
+$(".btn-selector-file-alioss").off('click').on('click', function (event) {
     event.preventDefault();
     OssMedia.selector_alioss(this,"{$url_prefix}")
 });

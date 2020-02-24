@@ -16,7 +16,7 @@ class OssMultipleImageField extends OssField
 
         $url_prefix = admin_url('oss-media');
         $this->script = <<<EOT
-$(".btn-selector-alioss").off('click').on('click', function (event) {
+$(".btn-selector-multiple-image-alioss").off('click').on('click', function (event) {
     event.preventDefault();
     OssMedia.selector_alioss(this,"{$url_prefix}")
 });
@@ -27,10 +27,6 @@ $("div.upload-preview").off('click', 'a.btn-destroy-multiple').on('click', 'a.bt
     OssMedia.destroyMultipleImage(this);
 })
 
-//$('.upload-preview').off('click', '.btn-destroy-multiple').on('click', '.btn-destroy-multiple', function(event){
-//    event.preventDefault();
-//    OssMedia.destroyMultipleImage(this);
-//});
 OssMedia.dmUploader("{$url_prefix}");
 
 EOT;

@@ -17,7 +17,7 @@ class OssImageField extends OssField
 
         $url_prefix = admin_url('oss-media');
         $this->script = <<<EOT
-$(".btn-selector-alioss").off('click').on('click', function (event) {
+$(".btn-selector-image-alioss").off('click').on('click', function (event) {
     event.preventDefault();
     OssMedia.selector_alioss(this,"{$url_prefix}")
 });
