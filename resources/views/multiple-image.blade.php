@@ -59,17 +59,18 @@
 
         <div class="from-group input-group mb-2 multiple">
             <div class="multiple-input">
-                @foreach($value as $key=>$item)
-                    <input type="hidden"
-                       class="form-control oss-file-path multiple-image-{{$key}}"
-                       name="{{$name}}[]"
-                       value="{{$item}}"
-                       data-key="{{$key}}"
-                       readonly="readonly"
-                      style="width: 450px;"
-                       placeholder="{{$placeholder}}"
-                    >
-                @endforeach
+                @if(old($column, $value))
+                    @foreach($value as $key=>$item)
+                        <input type="hidden"
+                           class="form-control oss-file-path multiple-image-{{$key}}"
+                           name="{{$name}}[]"
+                           value="{{$item}}"
+                           data-key="{{$key}}"
+                           readonly="readonly"
+                           style="width: 450px;"
+                           placeholder="{{$placeholder}}">
+                    @endforeach
+                @endif
             </div>
 
             <div class="progress mb-2 d-none" style="height:34px;">
